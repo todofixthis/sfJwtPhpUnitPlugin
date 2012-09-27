@@ -71,6 +71,23 @@ abstract class Test_Case_Functional extends Test_Case
     );
   }
 
+  /** Asserts that the response from the most recent request did not send the
+   *    specified status code(s).
+   *
+   * @param int|int[] $code     If array, must not match any of these.
+   * @param string    $message  Custom failure message (optional).
+   *
+   * @return void
+   */
+  protected function assertStatusCodeNot( $code, $message = '' )
+  {
+    self::assertThat(
+      $this->_browser,
+      new Test_Constraint_StatusCodeEquals($code, false),
+      $message
+    );
+  }
+
   /** Asserts that a form object is valid.
    *
    * @param sfForm  $form

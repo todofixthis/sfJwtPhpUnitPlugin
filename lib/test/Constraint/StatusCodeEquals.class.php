@@ -33,15 +33,17 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
     MESSAGE = 'response HTTP status code %s (got: %d %s)';
 
   protected
-    $_expected;
+    $_expected,
+    $_equal;
 
   /** Init the class instance.
    *
    * @param int|int[] $expected
+   * @param bool      $equal    Whether test val must equal value in $expected.
    *
    * @throws InvalidArgumentException
    */
-  public function __construct( $expected )
+  public function __construct( $expected, $equal = true )
   {
     foreach( (array) $expected as $value )
     {
@@ -51,7 +53,13 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
       }
     }
 
-    $this->_expected = array_values((array) $expected);
+    if( ! is_bool($equal) )
+    {
+      throw PHPUnit_Util_InvalidArgumentHelper::factory(1, 'bool');
+    }
+
+    $this->_expected  = array_values((array) $expected);
+    $this->_equal     = $equal;
   }
 
   /** Checks the status code.
@@ -68,7 +76,10 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
       throw PHPUnit_Util_InvalidArgumentHelper::factory(0, 'Test_Browser');
     }
 
-    return in_array($browser->getResponse()->getStatusCode(), $this->_expected);
+    return (
+      $this->_equal
+        === in_array($browser->getResponse()->getStatusCode(), $this->_expected)
+    );
   }
 
   /** Returns a generic string representation of the object.
@@ -77,10 +88,12 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
    */
   public function toString(  )
   {
+    $not = ($this->_equal ? '' : ' not');
+
     return (
       isset($this->_expected[1])
-        ? sprintf('is one of [%s]', implode(', ', $this->_expected))
-        : sprintf('is equal to <int:%d>', reset($this->_expected))
+        ? sprintf('is%s one of [%s]', $not, implode(', ', $this->_expected))
+        : sprintf('is%s equal to <int:%d>', $not, reset($this->_expected))
     );
   }
 
