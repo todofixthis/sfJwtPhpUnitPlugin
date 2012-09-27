@@ -21,60 +21,38 @@
  * THE SOFTWARE.
  */
 
-/** Exposes the Exception generated during a failed request.
+/** MySQL-specific driver for JPUP database operations.
  *
  * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
- * @subpackage lib.test.browser.plugin
- *
- * @method string getMessage()
- * @method mixed  getCode()
- * @method string getFile()
- * @method int    getLine()
- * @method array  getTrace()
- * @method string getTraceAsString()
- * @method string __toString()
+ * @subpackage test.database.driver
  */
-class Test_Browser_Plugin_Error extends Test_Browser_Plugin
+class Test_Database_Driver_Mysql
+  extends Test_Database_Driver
 {
-  /** Returns the name of the accessor that will invoke this plugin.
+  /** Yup; Doctrine uses magic strings for this.
    *
-   * For example, if this method returns 'getMagic', then the plugin can be
-   *  invoked in a test case by calling $this->_browser->getMagic().
-   *
-   * @return string
+   * @see Doctrine_Connection_Mysql
+   * @var string
    */
-  public function getMethodName(  )
+  const NAME = 'Mysql';
+
+  /** Pre-flush handler.
+   *
+   * @return void
+   */
+  protected function _doPreFlush(  )
   {
-    return 'getError';
+    $this->_connection->exec('SET foreign_key_checks = 0');
   }
 
-  /** Returns a reference to the uncaught exception from the application.
+  /** Post-flush handler.
    *
-   * @return static
+   * @return void
    */
-  public function invoke(  )
+  protected function _doPostFlush(  )
   {
-    if( ! $this->hasEncapsulatedObject() )
-    {
-      if( ! $this->getBrowser()->checkCurrentExceptionIsEmpty() )
-      {
-        $this->setEncapsulatedObject(
-          $this->getBrowser()->getCurrentException()
-        );
-      }
-    }
-
-    return $this;
-  }
-
-  /** Return a string representation of the error (i.e., the error message).
-   *
-   * @return string
-   */
-  public function __toString(  )
-  {
-    return (string) $this->getMessage();
+    $this->_connection->exec('SET foreign_key_checks = 1');
   }
 }

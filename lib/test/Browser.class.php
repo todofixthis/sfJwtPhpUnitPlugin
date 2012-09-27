@@ -31,7 +31,6 @@
  * @package jwt
  * @subpackage lib.test
  *
- * @method void             addListener(string $name, callback $listener)
  * @method sfUser           getUser()
  * @method sfBrowser        setHttpHeader(string $header, string $value)
  * @method sfBrowser        setCookie(string $name, string $value, int $expire = null, string $path = '/', string $domain = '', boolean $secure = false, boolean $httpOnly = false)
@@ -238,11 +237,12 @@ class Test_Browser extends Test_ObjectWrapper
   /** Converts routing info into a functional-test-compatible URI for the
    *    current application.
    *
-   * @param mixed $uri URI, route name or parameters.
+   * @param mixed $uri      URI, route name or parameters.
+   * @param bool  $absolute Whether to generate an absolute URL.
    *
    * @return string
    */
-  public function genUrl( $uri )
+  public function genUrl( $uri, $absolute = false )
   {
     /** Ensure the browser context is available.
      *
@@ -280,7 +280,7 @@ class Test_Browser extends Test_ObjectWrapper
     }
 
     /** @noinspection PhpUndefinedMethodInspection */
-    return $context->getController()->genUrl($uri, false);
+    return $context->getController()->genUrl($uri, $absolute);
   }
 
   /** Returns whether the browser has made a request yet.

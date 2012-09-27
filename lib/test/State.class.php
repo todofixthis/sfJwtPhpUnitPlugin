@@ -31,14 +31,12 @@
 class Test_State
 {
   static private
-    $_dbRebuilt,
-    $_dbFlushTree,
     $_configs;
 
   /** @var sfProjectConfiguration */
   protected $_configuration;
-  /** @var Doctrine_Connection */
-  protected $_connection;
+  /** @var Test_Database_Driver */
+  protected $_db;
 
   /** Inits the class instance.
    *
@@ -47,7 +45,8 @@ class Test_State
   public function __construct( sfProjectConfiguration $configuration )
   {
     $this->_configuration = $configuration;
-    $this->_connection    = $this->getDatabaseConnection();
+    $this->_db            =
+      Test_Database_Driver::factory($this->getDatabaseConnection());
   }
 
   /** Flush the database and reload base fixtures.
@@ -60,69 +59,10 @@ class Test_State
    *  database will be rebuilt regardless of $rebuild.
    *
    * @return static
-   *
-   * @todo Move Doctrine-specific functionality into separate class.
    */
   public function flushDatabase( $rebuild = false )
   {
-    if( $this->_connection )
-    {
-      /* The first time we run a test case, drop and rebuild the database.
-       *
-       * After that, we can simply truncate all tables for speed.
-       */
-      if( empty(self::$_dbRebuilt) or $rebuild )
-      {
-        /* Don't try to drop the database unless it exists. */
-        $name = $this->getDatabaseName();
-        /** @noinspection PhpUndefinedFieldInspection */
-        if( $name and $this->_connection->import->databaseExists($name) )
-        {
-          $this->_connection->dropDatabase();
-        }
-
-        $this->_connection->createDatabase();
-
-        Doctrine_Core::loadModels(
-          sfConfig::get('sf_lib_dir').'/model/doctrine',
-          Doctrine_Core::MODEL_LOADING_CONSERVATIVE
-        );
-        Doctrine_Core::createTablesFromArray(Doctrine_Core::getLoadedModels());
-
-        self::$_dbRebuilt = true;
-      }
-      else
-      {
-        /* Determine the order we need to load models. */
-        if( ! isset(self::$_dbFlushTree) )
-        {
-          /** @noinspection PhpUndefinedFieldInspection */
-          $models = $this->_connection->unitOfWork->buildFlushTree(
-            Doctrine_Core::getLoadedModels()
-          );
-          self::$_dbFlushTree = array_reverse($models);
-        }
-
-        /* Delete records, paying special attention to SoftDelete. */
-        foreach( self::$_dbFlushTree as $model )
-        {
-          $table = Doctrine_Core::getTable($model);
-
-          if( $table->hasTemplate('SoftDelete') )
-          {
-            /** @var $record Doctrine_Template_SoftDelete */
-            foreach( $table->createQuery()->execute() as $record )
-            {
-              $record->hardDelete();
-            }
-          }
-
-          $table->createQuery()->delete()->execute();
-          $table->clear();
-        }
-      }
-    }
-
+    $this->_db->flushDatabase($rebuild);
     return $this;
   }
 
@@ -180,25 +120,5 @@ class Test_State
     }
 
     return null;
-  }
-
-  /** Returns the name of the Doctrine database.
-   *
-   * @return string
-   */
-  protected function getDatabaseName(  )
-  {
-    /* Why oh why does Doctrine_Connection not do this for us? */
-    if( ! $dsn = $this->_connection->getOption('dsn') )
-    {
-      throw new RuntimeException(sprintf(
-        'Doctrine connection "%s" does not have a DSN!',
-          $this->_connection->getName()
-      ));
-    }
-
-    /** @noinspection PhpParamsInspection */
-    $info = $this->_connection->getManager()->parsePdoDsn($dsn);
-    return (isset($info['dbname']) ? $info['dbname'] : null);
   }
 }
