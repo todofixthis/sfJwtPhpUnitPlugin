@@ -443,7 +443,7 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
   For example, to change the `@package` of the test case to "MyAwesomeProject",
     you would invoke the task like this:
 
-    ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
+        ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
 
 ### Requesting URLs
 
