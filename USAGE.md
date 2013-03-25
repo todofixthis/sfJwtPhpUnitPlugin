@@ -364,7 +364,7 @@ For example, consider if your application's `routing.yml` looked like this:
     # default rules
     homepage:
       url:   /
-      param: { module: default, action: index }
+      param: { module: main, action: index }
 
     # generic rules
     # please, remove them by adding more specific rules
@@ -385,7 +385,7 @@ You could generate a functional test case for `main/index` using either of the
     you want to generate a functional test for a different application, you will
     need to specify it using the `--application` parameter:
 
-    ./symfony phpunit:generate-functional --application=backend @activitylogs
+        ./symfony phpunit:generate-functional --application=backend @activitylogs
 
 JPUP will generate a skeleton test case for you that looks something like this:
 
