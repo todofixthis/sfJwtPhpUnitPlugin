@@ -523,7 +523,7 @@ It is recommended that you only use `$parameters` to specify `POST` data:
           /* This will cause an error because the 'username' parameter will not
            *  get included when parsing the route:
            */
-          $this->_browser->post('@account_contact' array(
+          $this->_browser->post('@account_contact', array(
             'username'  => $user->username,
             'message'   => 'Hello, username!'
           ));
