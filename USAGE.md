@@ -488,7 +488,7 @@ The functional test might look something like this:
 
         /* Or use the route name and parameters: */
         $this->_browser->get('@account_contact?username=' . $user->getUsername());
-        $this->assertStatusCode();
+        $this->assertStatusCode(200);
 
         /* Or pass an array of route parameters: */
         $this->_browser->get(array(
