@@ -248,6 +248,7 @@ To execute a symfony task in a test, call `$this->runTask()`:
           array($user),
           array(
             'punctuation' => $bang
+          )
         );
         $this->assertEquals(0, $status, 'Expected task to complete successfully.');
       }
