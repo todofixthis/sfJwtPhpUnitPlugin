@@ -582,6 +582,9 @@ Testing applications that require login is a tricky proposition.  It's easy
         $this->assertStatusCode(200);
       }
 
+      /** Note that the user is logged out again at the start of the next
+       *    test.
+       */
       public function testSigninOnlyLastsForTheDurationOfTheTest(  )
       {
         $this->_browser->get($this->_route);
